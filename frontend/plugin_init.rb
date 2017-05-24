@@ -4,6 +4,7 @@ require 'aspace_logger'
 require 'omniauth-cas'
 
 OmniAuth.config.logger = ASpaceLogger.new($stderr)
+OmniAuth.config.full_host = AppConfig[:frontend_proxy_url]
 
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :cas,

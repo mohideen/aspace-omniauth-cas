@@ -9,6 +9,7 @@ begin
 
   logger = ASpaceLogger.new($stderr);
   OmniAuth.config.logger = logger
+  OmniAuth.config.full_host = AppConfig[:frontend_proxy_url]
 
   logger.info("omniauthCas/backend: AppConfig[:omniauthCas]='#{AppConfig[:omniauthCas]}'")####
 
