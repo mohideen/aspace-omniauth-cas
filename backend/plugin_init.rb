@@ -9,21 +9,26 @@ begin
 
   logger = ASpaceLogger.new($stderr);
   OmniAuth.config.logger = logger
+  OmniAuth.config.full_host = AppConfig[:frontend_proxy_url]
 
   logger.info("omniauthCas/backend: AppConfig[:omniauthCas]='#{AppConfig[:omniauthCas]}'")####
 
-# Create our initial user, if we need to bootstrap access to the
-# system: since we override the basic username/password authentication
-# mechanism, there isn't any way to log in as the admin user when this
-# plugin is installed.
-  if ((initUserInfo = AppConfig[:omniauthCas][:initialUser]) &&
-        !(initialUser = User.find(:username => initUserInfo[:username])))
-#   Create our initial user.
+  # Create from a list in the configuration a  set of admin users 
+  users = AppConfig[:omniauthCas][:initialUsers] || [] 
+  users.each do |username|
+    next if User.find( :username => username )
+    user = User.create_from_json(
+      JSONModel(:user).from_hash(:username => username, :name => username),
+      { :source => "local", :is_system_user => 1 }
+    )
     
-    initialUser = User.create_from_json( JSONModel(:user).from_hash('username' => initUserInfo[:username],
-                                             'name'     => initUserInfo[:name],
-                                             'is_admin' => true) )
-    logger.info("omniauthCas/backend: initialUser='#{initialUser}'")####
+    RequestContext.open(:repo_id => Repository[:repo_code => Repository.GLOBAL].id ) do
+     Group.find( :group_code => Group.ADMIN_GROUP_CODE  ).add_user( user )
+    end 
+
+ 
+    DBAuth.set_password(username, SecureRandom.hex)
+    logger.info("Creating new admin user #{username}")  
   end
 
 end

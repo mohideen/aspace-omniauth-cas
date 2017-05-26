@@ -42,10 +42,7 @@ your local situation:
 		:backendUidProc   => lambda { |hash| ... },
 		:backendEmailProc => lambda { |hash| ... },
 		:logoutUrlPath    => '<CAS-LOGOUT-PATH>',
-#       :initialUser      => {
-#	        :username => '<USER_ID>',
-#           :name     => '<USER-NAME',
-#       },
+                :initialUsers      => [ 'umd-cas-id-of-a-user-to-added-as-admin'] 
 	}
 ```
 
